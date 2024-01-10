@@ -7,6 +7,8 @@ import {
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
+  FaceSmileIcon,
+  FaceFrownIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import { createInvoice } from '@/app/lib/actions';
@@ -114,7 +116,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 />
                 <label
                   htmlFor="paid"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white"
+                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
                 >
                   Paid <CheckIcon className="h-4 w-4" />
                 </label>
@@ -125,6 +127,54 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         <div id='status-error' aria-live='polite' aria-atomic='true'>
             {state.errors?.status &&
               state.errors.status.map((error: string) => (
+                <p className='mt-2 text-sm text-red-500' key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+          {/*Cat owner*/}
+          <fieldset aria-describedby='answer-error'>
+            <legend className="mb-2 block text-sm font-medium pt-4">
+              Is customer a cat owner?
+            </legend>
+            <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
+              <div className="flex gap-4">
+                <div className="flex items-center">
+                  <input
+                    id="Yes"
+                    name="answer"
+                    type="radio"
+                    value="Yes"
+                    className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                  />
+                  <label
+                    htmlFor="Yes"
+                    className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
+                  >
+                  Yes <FaceSmileIcon className="h-4 w-4" />
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="No"
+                    name="answer"
+                    type="radio"
+                    value="No"
+                    className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                  />
+                  <label
+                    htmlFor="No"
+                    className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
+                  >
+                    No <FaceFrownIcon className="h-4 w-4" />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+          <div id='answer-error' aria-live='polite' aria-atomic='true'>
+            {state.errors?.answer &&
+              state.errors.answer.map((error: string) => (
                 <p className='mt-2 text-sm text-red-500' key={error}>
                   {error}
                 </p>

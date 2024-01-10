@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { sql } from '@vercel/postgres'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { signIn } from '@/auth'
+import { AuthError } from 'next-auth'
 
 const FormSchema = z.object({
     id: z.string(),
@@ -17,6 +19,9 @@ const FormSchema = z.object({
         invalid_type_error: 'Please select an invoice status.',
     }),
     date: z.string(),
+    answer: z.enum(['Yes', 'No'], {
+        invalid_type_error: 'Please tell me if the customer owns a cat',
+    }),
 })
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true })
@@ -27,6 +32,7 @@ export type State = {
         customerId?: string[]
         amount?: string[]
         status?: string[]
+        answer?: string[]
     }
     message?: string | null
 }
@@ -35,7 +41,8 @@ export async function createInvoice(prevState: State, formData: FormData) {
     const validatedFields = CreateInvoice.safeParse({
         customerId: formData.get('customerId'),
         amount: formData.get('amount'),
-        status: formData.get('status')
+        status: formData.get('status'),
+        answer: formData.get('answer'),
     })
 
     if (!validatedFields.success) {
@@ -45,14 +52,14 @@ export async function createInvoice(prevState: State, formData: FormData) {
         }
     }
     
-    const { customerId, amount, status } = validatedFields.data
+    const { customerId, amount, status, answer } = validatedFields.data
     const amountInCents = amount * 100
     const date = new Date().toISOString().split('T')[0]
     
     try {
         await sql`
-            INSERT INTO invoices (customer_id, amount, status, date)
-            VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+            INSERT INTO invoices (customer_id, amount, status, cat_owner, date)
+            VALUES (${customerId}, ${amountInCents}, ${status}, ${answer}, ${date})
         `
     } catch (error) {
         return {
@@ -72,7 +79,8 @@ export async function updateInvoice(
     const validatedFields = UpdateInvoice.safeParse({
         customerId: formData.get('customerId'),
         amount: formData.get('amount'),
-        status: formData.get('status')
+        status: formData.get('status'),
+        answer: formData.get('answer'),
     })
 
     if (!validatedFields.success) {
@@ -82,13 +90,13 @@ export async function updateInvoice(
         }
     }
     
-    const { customerId, amount, status } = validatedFields.data
+    const { customerId, amount, status, answer } = validatedFields.data
     const amountInCents = amount * 100
 
     try {
         await sql`
             UPDATE invoices
-            SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+            SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}, cat_owner = ${answer}
             WHERE id = ${id}
         `
     } catch (error) {
@@ -111,5 +119,24 @@ export async function deleteInvoice(id: string) {
         return {
             message: 'Database error: Failed to delete invoice.'
         }
+    }
+}
+
+export async function authenticate(
+    prevState: string | undefined,
+    formData: FormData
+) {
+    try {
+        await signIn('credentials', formData)
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid credentials.'
+                default:
+                    return 'Something went wrong.'
+            }
+        }
+        throw error
     }
 }

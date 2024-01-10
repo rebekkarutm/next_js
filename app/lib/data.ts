@@ -105,6 +105,7 @@ export async function fetchFilteredInvoices(
         invoices.amount,
         invoices.date,
         invoices.status,
+        invoices.cat_owner,
         customers.name,
         customers.email,
         customers.image_url
@@ -157,7 +158,8 @@ export async function fetchInvoiceById(id: string) {
         invoices.id,
         invoices.customer_id,
         invoices.amount,
-        invoices.status
+        invoices.status,
+        invoices.cat_owner
       FROM invoices
       WHERE invoices.id = ${id};
     `;

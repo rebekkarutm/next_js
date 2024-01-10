@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { UpdateInvoice, DeleteInvoice } from '@/app/ui/invoices/buttons';
 import InvoiceStatus from '@/app/ui/invoices/status';
+import CatAnswer from './cats';
 import { formatDateToLocal, formatCurrency } from '@/app/lib/utils';
 import { fetchFilteredInvoices } from '@/app/lib/data';
 
@@ -72,6 +73,9 @@ export default async function InvoicesTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   Status
                 </th>
+                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
+                  Cat?
+                </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
                 </th>
@@ -106,6 +110,9 @@ export default async function InvoicesTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     <InvoiceStatus status={invoice.status} />
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {invoice.cat_owner}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
